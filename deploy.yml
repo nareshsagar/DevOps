@@ -1,0 +1,19 @@
+---
+- name: Deploy FastAPI App to All Nodes
+  hosts: target_nodes
+  tasks:
+    - name: Create project directory
+      file: path=/root/fastapi-app state=directory
+
+    - name: Copy project files to nodes
+      copy: src=./ dest=/root/fastapi-app/
+
+    - name: Build FastAPI Docker Image
+      shell: cd /root/fastapi-app && docker build -t fastapi-app:latest .
+
+    - name: Remove old container if exists
+      shell: docker rm -f fastapi-container || true
+
+    - name: Run FastAPI container
+      shell: docker run -d --name fastapi-container -p 80:80 fastapi-app:latest
+
