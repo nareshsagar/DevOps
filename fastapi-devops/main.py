@@ -1,6 +1,10 @@
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
+
+# This automatically adds a /metrics endpoint to your app
+Instrumentator().instrument(app).expose(app)
 
 @app.get("/")
 def read_root():
@@ -9,3 +13,4 @@ def read_root():
 @app.get("/health")
 def status():
     return {"status": "ok"}
+    
