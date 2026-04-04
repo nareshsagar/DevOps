@@ -21,3 +21,5 @@
       # ensures the actual state matches your desired replicas.
       shell: docker stack deploy -c /root/fastapi-app/docker-compose.yml fastapi_stack
 
+
+
