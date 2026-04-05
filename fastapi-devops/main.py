@@ -3,7 +3,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
 
-# This automatically adds a /metrics endpoint to your app
+# This automatically adds a /metrics endpoint to your app yes
 Instrumentator().instrument(app).expose(app)
 
 @app.get("/")
