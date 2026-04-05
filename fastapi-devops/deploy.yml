@@ -1,19 +1,35 @@
 ---
-- name: Deploy FastAPI App to All Nodes
+- name: Deploy FastAPI App to Swarm Cluster
   hosts: target_nodes
+  become: yes
+  vars:
+    app_name: "monitor_fastapi-app"
+    app_image: "my-fastapi-app:latest"
+
   tasks:
-    - name: Create project directory
-      file: path=/root/fastapi-app state=directory
+    - name: Ensure project directory exists
+      file:
+        path: /root/fastapi-app
+        state: directory
+        mode: '0755'
 
-    - name: Copy project files to nodes
-      copy: src=./ dest=/root/fastapi-app/
+    - name: Deploy FastAPI as a Swarm Service
+      community.docker.docker_swarm_service:
+        name: "{{ app_name }}"
+        image: "{{ app_image }}"
+        networks:
+          - monitor_net
+        replicas: 2
+        publish_ports:
+          - target_port: 8000
+            published_port: 8000
+        restart_config:
+          condition: on-failure
+        update_config:
+          parallelism: 1
+          delay: 10s
+      register: swarm_res
 
-    - name: Build FastAPI Docker Image
-      shell: cd /root/fastapi-app && docker build -t fastapi-app:latest .
-
-    - name: Remove old container if exists
-      shell: docker rm -f fastapi-container || true
-
-    - name: Run FastAPI container
-      shell: docker run -d --name fastapi-container -p 80:80 fastapi-app:latest
-
+    - name: Display Deployment Status
+      debug:
+        msg: "Service {{ app_name }} is now {{ 'running' if swarm_res.failed == false else 'failed' }}"
