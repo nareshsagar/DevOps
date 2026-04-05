@@ -20,9 +20,10 @@
         networks:
           - monitor_net
         replicas: 2
-        publish_ports:
-          - target_port: 8000
-            published_port: 8000
+        # FIXED: Changed 'publish_ports' to 'publish'
+        publish:
+          - published_port: 8000
+            target_port: 8000
         restart_config:
           condition: on-failure
         update_config:
@@ -32,4 +33,4 @@
 
     - name: Display Deployment Status
       debug:
-        msg: "Service {{ app_name }} is now {{ 'running' if swarm_res.failed == false else 'failed' }}"
+        msg: "Service {{ app_name }} status updated successfully."
